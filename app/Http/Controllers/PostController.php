@@ -12,12 +12,11 @@ class PostController extends Controller
     {
         DB::flushQueryLog();
         DB::enableQueryLog();
+       $posts = Post::latest('published_at')->paginate(50);
+       
+        $posts = Post::with('author', 'category', 'tags', 'comments')->latest('published_at')->paginate(50);
 
-        $posts = Post::query()->latest('published_at')->paginate(50);
-
-        $posts->each(function (Post $post): void {
-            $post->author;
-        });
+       
 
         return view('posts.index', [
             'posts' => $posts,
@@ -29,16 +28,10 @@ class PostController extends Controller
     {
         DB::flushQueryLog();
         DB::enableQueryLog();
+        $posts = Post::latest('published_at')->limit(200)->get();
+        $posts = Post::with('author','category', 'tags', 'comments' )->latest('published_at')->limit(200)->get();
 
-        $posts = Post::query()->latest('published_at')->limit(200)->get();
-
-        $posts->each(function (Post $post): void {
-            $post->author;
-            $post->category;
-            $post->tags;
-            $post->comments->count();
-        });
-
+        
         return view('posts.report', [
             'posts' => $posts,
             'queryCount' => count(DB::getQueryLog()),
